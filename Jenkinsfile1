@@ -1,0 +1,33 @@
+pipeline {
+
+    agent { label 'docker-slave-ssh' }
+    stages {
+        stage('Clone') {
+              steps {
+                git branch: 'main',
+                    url: 'https://github.com/OnStas/jenkins_test.git'
+                echo "PR id is ${CHANGE_ID}" 
+            }          
+        }
+        stage('Build') {
+            steps {
+                sh 'chmod +x build.sh'
+                sh './build.sh 2>&1 | tee artifact.txt'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'chmod +x test.sh'
+                sh './test.sh 2>&1 | tee test_result.txt' 
+            }
+        }                      
+    }
+    post {
+        always {
+            archiveArtifacts(artifacts: '**/artifact.txt', followSymlinks: false)
+        }
+        failure {
+            archiveArtifacts(artifacts: '**/test_result.txt', followSymlinks: false)
+        }
+    }
+}
