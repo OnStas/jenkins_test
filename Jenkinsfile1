@@ -22,12 +22,5 @@ pipeline {
             }
         }                      
     }
-    post {
-        always {
-            archiveArtifacts(artifacts: '**/artifact.txt', followSymlinks: false)
-        }
-        failure {
-            archiveArtifacts(artifacts: '**/test_result.txt', followSymlinks: false)
-        }
-    }
+
 }
